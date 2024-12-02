@@ -5,7 +5,7 @@
 //  Created by Aleksandr Salagubov on 01.12.2024.
 //
 
-
+import Foundation
 import SwiftData
 
 @Model
@@ -72,5 +72,13 @@ extension LocalMovie {
             imDbRating: imDbRating,
             imDbRatingCount: imDbRatingCount
         )
+    }
+}
+
+extension LocalMovie {
+    var resizedImageURL: URL? {
+        let urlString = image
+        let imageUrlString = urlString.components(separatedBy: "._")[0] + "._V0_UX600_.jpg"
+        return URL(string: imageUrlString)
     }
 }

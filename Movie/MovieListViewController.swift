@@ -27,31 +27,23 @@ class MovieListViewController: UIViewController {
     private func setupUI() {
         title = "Top Movies"
         view.backgroundColor = .white
-        
+
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(MovieTableViewCell.self, forCellReuseIdentifier: "MovieCell")
         tableView.translatesAutoresizingMaskIntoConstraints = false
         
+        tableView.estimatedRowHeight = 120
+        tableView.rowHeight = UITableView.automaticDimension
+
         view.addSubview(tableView)
-        
+
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
-        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "Refresh",
-            style: .plain,
-            target: self,
-            action: #selector(refreshMovies)
-        )
-    }
-    
-    @objc private func refreshMovies() {
-        fetchMovies()
     }
     
     private func fetchMovies() {
@@ -90,33 +82,60 @@ class MovieListViewController: UIViewController {
         }
     }
     
-    private func deleteMovie(_ movie: LocalMovie) {
-        modelContext.delete(movie)
+    private func loadImage(from url: String, completion: @escaping (UIImage?) -> Void) {
+
+        guard let imageURL = URL(string: url) else {
+            completion(nil)
+            return
+        }
+
+        Task {
+            do {
+                let (data, _) = try await URLSession.shared.data(from: imageURL)
+                if let image = UIImage(data: data) {
+                    completion(image)
+                } else {
+                    completion(nil)
+                }
+            } catch {
+                completion(nil)
+            }
+        }
+    }
+
+    private func updateMovieRating(_ movie: LocalMovie, rating: String) {
+        movie.userRating = rating
         
         do {
             try modelContext.save()
+            saveMoviesToCache() 
             if let index = movies.firstIndex(where: { $0.id == movie.id }) {
-                movies.remove(at: index)
-                tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
-                saveMoviesToCache()
+                reloadRow(at: index)
             }
         } catch {
-            print("Ошибка удаления фильма: \(error)")
+            print("Ошибка сохранения пользовательского рейтинга: \(error)")
         }
     }
     
-    private func updateMovie(_ movie: LocalMovie, title: String) {
-        movie.title = title
-        
-        do {
-            try modelContext.save()
-            loadMoviesFromStorage()
-        } catch {
-            print("Failed to update movie: \(error)")
-        }
+    private func reloadRow(at index: Int) {
+        let indexPath = IndexPath(row: index, section: 0)
+        tableView.reloadRows(at: [indexPath], with: .none)
     }
+    
+    private func deleteMovie(_ movie: LocalMovie) {
+            modelContext.delete(movie)
+            
+            do {
+                try modelContext.save()
+                if let index = movies.firstIndex(where: { $0.id == movie.id }) {
+                    movies.remove(at: index)
+                    tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+                }
+            } catch {
+                print("Ошибка удаления фильма: \(error)")
+            }
+        }
 }
-
 
 extension MovieListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -181,26 +200,6 @@ extension MovieListViewController {
         
         present(alertController, animated: true)
     }
-    
-    private func updateMovieRating(_ movie: LocalMovie, rating: String) {
-        movie.userRating = rating
-        
-        do {
-            try modelContext.save()
-            if let index = movies.firstIndex(where: { $0.id == movie.id }) {
-                reloadRow(at: index)
-            }
-            saveMoviesToCache()
-        } catch {
-            print("Ошибка сохранения пользовательского рейтинга: \(error)")
-        }
-    }
-    
-    private func reloadRow(at index: Int) {
-        let indexPath = IndexPath(row: index, section: 0)
-        tableView.reloadRows(at: [indexPath], with: .none)
-    }
-    
 }
 
 extension MovieListViewController {

@@ -2,14 +2,6 @@
 //  Movie.swift
 //  Movie
 //
-//  Created by Aleksandr Salagubov on 02.12.2024.
-//
-
-
-//
-//  Movie.swift
-//  Movie
-//
 //  Created by Aleksandr Salagubov on 01.12.2024.
 //
 
