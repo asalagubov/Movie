@@ -49,7 +49,7 @@ class MovieTableViewCell: UITableViewCell {
         userRatingLabel.textColor = .gray
 
         rateButton.translatesAutoresizingMaskIntoConstraints = false
-        rateButton.setTitle("Оценить", for: .normal)
+        rateButton.setTitle("Review", for: .normal)
         rateButton.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.1)
         rateButton.layer.borderColor = UIColor.systemBlue.cgColor
         rateButton.layer.borderWidth = 1
