@@ -2,14 +2,6 @@
 //  LocalMovie.swift
 //  Movie
 //
-//  Created by Aleksandr Salagubov on 02.12.2024.
-//
-
-
-//
-//  LocalMovie.swift
-//  Movie
-//
 //  Created by Aleksandr Salagubov on 01.12.2024.
 //
 
@@ -26,6 +18,7 @@ final class LocalMovie: Identifiable {
     var image: String
     var imDbRating: String
     var imDbRatingCount: String
+    var userRating: String?
 
     init(
         id: String,
@@ -35,7 +28,8 @@ final class LocalMovie: Identifiable {
         year: String,
         image: String,
         imDbRating: String,
-        imDbRatingCount: String
+        imDbRatingCount: String,
+        userRating: String? = nil
     ) {
         self.id = id
         self.rank = rank
@@ -45,10 +39,15 @@ final class LocalMovie: Identifiable {
         self.image = image
         self.imDbRating = imDbRating
         self.imDbRatingCount = imDbRatingCount
+        self.userRating = userRating
     }
 }
 
 extension LocalMovie {
+    var description: String {
+        return "\(title) (\(year)) \nОбщий рейтинг:\(imDbRating)⭐ \n(\(imDbRatingCount) кол-во голосов)"
+    }
+
     static func from(movie: Movie) -> LocalMovie {
         return LocalMovie(
             id: movie.id,

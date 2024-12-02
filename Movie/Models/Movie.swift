@@ -25,8 +25,4 @@ struct Movie: Identifiable, Codable {
     let image: String
     let imDbRating: String
     let imDbRatingCount: String
-
-    var description: String {
-        return "\(title) (\(year)) - \(imDbRating)⭐ (\(imDbRatingCount) votes)"
-    }
 }

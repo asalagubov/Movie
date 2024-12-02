@@ -10,11 +10,11 @@ import UIKit
 
 class MovieTableViewCell: UITableViewCell {
     private let movieImageView = UIImageView()
-    private let titleLabel = UILabel()
-    private let ratingLabel = UILabel()
-    private let editButton = UIButton(type: .system)
+    private let descriptionLabel = UILabel()
+    private let userRatingLabel = UILabel()
+    private let rateButton = UIButton(type: .system)
 
-    var onEdit: (() -> Void)?
+    var onRate: (() -> Void)?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -29,21 +29,27 @@ class MovieTableViewCell: UITableViewCell {
         movieImageView.translatesAutoresizingMaskIntoConstraints = false
         movieImageView.contentMode = .scaleAspectFit
 
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.font = .systemFont(ofSize: 16, weight: .bold)
+        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
+        descriptionLabel.font = .systemFont(ofSize: 14, weight: .regular)
+        descriptionLabel.numberOfLines = 0
 
-        ratingLabel.translatesAutoresizingMaskIntoConstraints = false
-        ratingLabel.font = .systemFont(ofSize: 14, weight: .regular)
-        ratingLabel.textColor = .gray
+        userRatingLabel.translatesAutoresizingMaskIntoConstraints = false
+        userRatingLabel.font = .systemFont(ofSize: 14, weight: .semibold)
+        userRatingLabel.textColor = .systemBlue
 
-        editButton.translatesAutoresizingMaskIntoConstraints = false
-        editButton.setTitle("Edit", for: .normal)
-        editButton.addTarget(self, action: #selector(editTapped), for: .touchUpInside)
+        rateButton.translatesAutoresizingMaskIntoConstraints = false
+        rateButton.setTitle("Оценить", for: .normal)
+        rateButton.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.1)
+        rateButton.layer.borderColor = UIColor.systemBlue.cgColor
+        rateButton.layer.borderWidth = 1
+        rateButton.layer.cornerRadius = 8
+        rateButton.setTitleColor(.systemBlue, for: .normal)
+        rateButton.addTarget(self, action: #selector(rateTapped), for: .touchUpInside)
 
         contentView.addSubview(movieImageView)
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(ratingLabel)
-        contentView.addSubview(editButton)
+        contentView.addSubview(descriptionLabel)
+        contentView.addSubview(userRatingLabel)
+        contentView.addSubview(rateButton)
 
         NSLayoutConstraint.activate([
             movieImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
@@ -51,24 +57,28 @@ class MovieTableViewCell: UITableViewCell {
             movieImageView.widthAnchor.constraint(equalToConstant: 60),
             movieImageView.heightAnchor.constraint(equalToConstant: 90),
 
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
-            titleLabel.leadingAnchor.constraint(equalTo: movieImageView.trailingAnchor, constant: 10),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            descriptionLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            descriptionLabel.leadingAnchor.constraint(equalTo: movieImageView.trailingAnchor, constant: 10),
+            descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
 
-            ratingLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 5),
-            ratingLabel.leadingAnchor.constraint(equalTo: movieImageView.trailingAnchor, constant: 10),
-            ratingLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            userRatingLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 5),
+            userRatingLabel.leadingAnchor.constraint(equalTo: movieImageView.trailingAnchor, constant: 10),
+            userRatingLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
 
-            editButton.topAnchor.constraint(equalTo: ratingLabel.bottomAnchor, constant: 10),
-            editButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-            editButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10)
+            rateButton.topAnchor.constraint(equalTo: userRatingLabel.bottomAnchor, constant: 10),
+            rateButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            rateButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+            rateButton.widthAnchor.constraint(equalToConstant: 80),
+            rateButton.heightAnchor.constraint(equalToConstant: 30)
         ])
     }
 
     func configure(with movie: LocalMovie) {
-        titleLabel.text = movie.title
-        ratingLabel.text = "Rating: \(movie.imDbRating)"
-        
+        descriptionLabel.text = movie.description
+        userRatingLabel.text = movie.userRating != nil
+            ? "Мой рейтинг: \(movie.userRating!)"
+            : "Мой рейтинг: отсутствует"
+
         if let url = URL(string: movie.image) {
             Task {
                 if let data = try? await URLSession.shared.data(from: url).0 {
@@ -81,7 +91,7 @@ class MovieTableViewCell: UITableViewCell {
         }
     }
 
-    @objc private func editTapped() {
-        onEdit?()
+    @objc private func rateTapped() {
+        onRate?()
     }
 }
