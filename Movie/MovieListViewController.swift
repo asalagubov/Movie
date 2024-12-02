@@ -11,10 +11,12 @@ import SwiftData
 
 @MainActor
 class MovieListViewController: UIViewController {
-    private let tableView = UITableView()
-    private let movieService = MovieService()
-    private var movies: [LocalMovie] = []
-    private let modelContext = PersistenceController.shared.mainContext
+    let tableView = UITableView()
+    let movieService = MovieService()
+    var movies: [LocalMovie] = []
+    let modelContext = PersistenceController.shared.mainContext
+    
+    var presentAlert: ((UIAlertController) -> Void)?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -103,7 +105,7 @@ class MovieListViewController: UIViewController {
         }
     }
 
-    private func updateMovieRating(_ movie: LocalMovie, rating: String) {
+    func updateMovieRating(_ movie: LocalMovie, rating: String) {
         movie.userRating = rating
         
         do {
@@ -122,7 +124,7 @@ class MovieListViewController: UIViewController {
         tableView.reloadRows(at: [indexPath], with: .none)
     }
     
-    private func deleteMovie(_ movie: LocalMovie) {
+    func deleteMovie(_ movie: LocalMovie) {
             modelContext.delete(movie)
             
             do {

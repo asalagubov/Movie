@@ -11,8 +11,8 @@ import UIKit
 class MovieTableViewCell: UITableViewCell {
     private let movieImageView = UIImageView()
     private let loadingIndicator = UIActivityIndicatorView(style: .medium)
-    private let descriptionLabel = UILabel()
-    private let userRatingLabel = UILabel()
+    let descriptionLabel = UILabel()
+    let userRatingLabel = UILabel()
     private let rateButton = UIButton(type: .system)
 
     var onRate: (() -> Void)?
